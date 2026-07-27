@@ -1,6 +1,27 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { UserPlus, Mail, Lock, CheckCircle2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import {
+  Container,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  Box,
+  Alert,
+  IconButton,
+  InputAdornment,
+  CircularProgress,
+  Grid,
+  Link,
+  Stack,
+} from '@mui/material';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import MailIcon from '@mui/icons-material/Mail';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { registerApi } from '../services/api';
 
 export const RegisterPage: React.FC = () => {
@@ -33,162 +54,196 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="main-content animate-fade-in" style={{ width: '100%' }}>
-      <div
-        className="glass-card"
-        style={{
-          width: '100%',
-          maxWidth: '460px',
-          padding: '40px 32px',
+    <Container maxWidth="xs">
+      <Paper
+        elevation={0}
+        sx={{
+          p: { xs: 3, sm: 4 },
+          background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
+          backdropFilter: 'blur(16px)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)',
         }}
       >
-        <div style={{ marginBottom: '28px', textAlign: 'center' }}>
-          <div
-            className="brand-icon"
-            style={{ margin: '0 auto 16px', width: '52px', height: '52px' }}
+        {/* Header Icon & Title */}
+        <Box sx={{ textAlign: 'center', mb: 3 }}>
+          <Box
+            sx={{
+              width: 52,
+              height: 52,
+              borderRadius: '14px',
+              background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              mx: 'auto',
+              mb: 2,
+              boxShadow: '0 6px 16px rgba(16, 185, 129, 0.35)',
+            }}
           >
-            <UserPlus size={28} color="#FFFFFF" />
-          </div>
-          <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.75rem', fontWeight: 700 }}>
+            <PersonAddIcon sx={{ color: '#FFFFFF', fontSize: 28 }} />
+          </Box>
+          <Typography variant="h2" component="h2" gutterBottom>
             Create Account
-          </h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '6px' }}>
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
             Register new administrator credentials
-          </p>
-        </div>
+          </Typography>
+        </Box>
 
+        {/* Success Alert */}
         {successMsg && (
-          <div className="alert alert-success" id="register-success-alert">
-            <CheckCircle2 size={20} />
-            <span>{successMsg}</span>
-          </div>
+          <Alert
+            severity="success"
+            id="register-success-alert"
+            icon={<CheckCircleIcon fontSize="inherit" />}
+            sx={{
+              mb: 3,
+              borderRadius: 2,
+              backgroundColor: 'rgba(16, 185, 129, 0.15)',
+              color: '#6EE7B7',
+              border: '1px solid rgba(16, 185, 129, 0.3)',
+              '& .MuiAlert-icon': {
+                color: '#34D399',
+              },
+            }}
+          >
+            {successMsg}
+          </Alert>
         )}
 
-        <form onSubmit={handleSubmit}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-            <div className="form-group">
-              <label className="form-label" htmlFor="reg-surname">Surname</label>
-              <input
+        {/* Form */}
+        <Box component="form" onSubmit={handleSubmit} noValidate>
+          <Grid container spacing={2} sx={{ mb: 2 }}>
+            <Grid size={{ xs: 6 }}>
+              <TextField
+                fullWidth
                 id="reg-surname"
-                type="text"
-                className="form-input"
+                label="Surname"
                 placeholder="e.g. Le"
                 value={surname}
                 onChange={(e) => setSurname(e.target.value)}
               />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="reg-firstname">First Name</label>
-              <input
+            </Grid>
+            <Grid size={{ xs: 6 }}>
+              <TextField
+                fullWidth
                 id="reg-firstname"
-                type="text"
-                className="form-input"
+                label="First Name"
                 placeholder="e.g. Dang"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
               />
-            </div>
-          </div>
+            </Grid>
+          </Grid>
 
-          <div className="form-group">
-            <label className="form-label" htmlFor="reg-email">Email Address</label>
-            <div style={{ position: 'relative' }}>
-              <Mail
-                size={18}
-                style={{
-                  position: 'absolute',
-                  left: '14px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: 'var(--text-muted)',
-                }}
-              />
-              <input
-                id="reg-email"
-                type="email"
-                className="form-input"
-                style={{ paddingLeft: '44px' }}
-                placeholder="newadmin@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-          </div>
+          <Stack spacing={2.5}>
+            <TextField
+              fullWidth
+              id="reg-email"
+              label="Email Address"
+              type="email"
+              placeholder="newadmin@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <MailIcon sx={{ color: 'text.secondary', fontSize: 20 }} />
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
 
-          <div className="form-group">
-            <label className="form-label" htmlFor="reg-password">Password</label>
-            <div style={{ position: 'relative' }}>
-              <Lock
-                size={18}
-                style={{
-                  position: 'absolute',
-                  left: '14px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: 'var(--text-muted)',
-                }}
-              />
-              <input
-                id="reg-password"
-                type={showPassword ? 'text' : 'password'}
-                className="form-input"
-                style={{ paddingLeft: '44px', paddingRight: '44px' }}
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: 'absolute',
-                  right: '12px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--text-muted)',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: '4px',
-                }}
-                id="toggle-reg-password-btn"
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
-          </div>
+            <TextField
+              fullWidth
+              id="reg-password"
+              label="Password"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LockOutlinedIcon sx={{ color: 'text.secondary', fontSize: 20 }} />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        id="toggle-reg-password-btn"
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                        onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
+                        size="small"
+                        sx={{ color: 'text.secondary' }}
+                      >
+                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
 
-          <button
-            type="submit"
-            className="btn btn-primary btn-full"
-            style={{ marginTop: '24px' }}
-            disabled={isSubmitting}
-            id="register-submit-btn"
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="secondary"
+              size="large"
+              disabled={isSubmitting}
+              id="register-submit-btn"
+              startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : <PersonAddIcon />}
+              sx={{
+                py: 1.4,
+                mt: 1,
+                fontSize: '1rem',
+                boxShadow: '0 8px 20px rgba(16, 185, 129, 0.3)',
+              }}
+            >
+              {isSubmitting ? 'Registering...' : 'Register Account'}
+            </Button>
+          </Stack>
+        </Box>
+
+        {/* Footer Navigation */}
+        <Box sx={{ mt: 4, textAlign: 'center' }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+            Already have an account?{' '}
+            <Link
+              component={RouterLink}
+              to="/login"
+              underline="hover"
+              sx={{ color: '#34D399', fontWeight: 600 }}
+            >
+              Sign In
+            </Link>
+          </Typography>
+
+          <Link
+            component={RouterLink}
+            to="/"
+            underline="hover"
+            sx={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 0.5,
+              color: 'text.secondary',
+              fontSize: '0.85rem',
+              '&:hover': { color: '#F8FAFC' },
+            }}
           >
-            <UserPlus size={20} />
-            <span>{isSubmitting ? 'Registering...' : 'Register Account'}</span>
-          </button>
-        </form>
-
-        <div style={{ marginTop: '28px', textAlign: 'center', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-          Already have an account?{' '}
-          <Link to="/login" style={{ color: 'var(--primary-light)', fontWeight: 600 }}>
-            Sign In
+            <ArrowBackIcon sx={{ fontSize: 16 }} /> Back to Homepage
           </Link>
-        </div>
-
-        <div style={{ marginTop: '16px', textAlign: 'center' }}>
-          <Link to="/" style={{ color: 'var(--text-dark)', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-            <ArrowLeft size={14} /> Back to Homepage
-          </Link>
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Paper>
+    </Container>
   );
 };

@@ -1,7 +1,10 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import { theme } from './theme/theme';
 import { AuthProvider } from './context/AuthContext';
-import { Navbar } from './components/Navbar';
+import { Layout } from './layout/Layout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
@@ -11,11 +14,11 @@ import { AdminInfoPage } from './pages/AdminInfoPage';
 
 const App: React.FC = () => {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-          <Navbar />
-          <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <BrowserRouter>
+        <AuthProvider>
+          <Layout>
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<LoginPage />} />
@@ -37,10 +40,10 @@ const App: React.FC = () => {
                 }
               />
             </Routes>
-          </main>
-        </div>
-      </AuthProvider>
-    </BrowserRouter>
+          </Layout>
+        </AuthProvider>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 };
 
