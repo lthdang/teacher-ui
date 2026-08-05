@@ -11,8 +11,8 @@ interface AuthContextType {
   logout: () => Promise<void>;
 }
 
-const TOKEN_KEY = 'teacher_management_token';
-const ADMIN_KEY = 'teacher_management_admin';
+const TOKEN_KEY = 'teacher_token';
+const ADMIN_KEY = 'teacher_admin';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 

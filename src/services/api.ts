@@ -64,13 +64,26 @@ export async function getProfileApi(token: string): Promise<AdminProfile> {
   return response.json();
 }
 
-export async function registerApi(data: AdminRegisterRequest): Promise<{ success: boolean; message: string }> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        success: true,
-        message: `Account for ${data.email} registered successfully. You can now login.`,
-      });
-    }, 600);
+export async function registerApi(data: AdminRegisterRequest): Promise<AdminProfile> {
+  const response = await fetch(`${API_BASE_URL}/register`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
   });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    let message = 'Registration failed. Please try again.';
+    try {
+      const errJson = JSON.parse(errorText);
+      if (errJson.message) message = errJson.message;
+    } catch {
+      if (errorText) message = errorText;
+    }
+    throw new ApiError(message, response.status);
+  }
+
+  return response.json();
 }
