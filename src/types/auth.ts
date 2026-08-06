@@ -14,7 +14,7 @@ export interface AdminLoginRequest {
   password?: string;
 }
 
-export interface LoginResponse {
+export interface AdminLoginResponse {
   token: string;
   expiresAt: string;
   admin: AdminProfile;
@@ -22,7 +22,7 @@ export interface LoginResponse {
 
 export interface AdminRegisterRequest {
   email: string;
-  password?: string;
-  surname?: string;
-  firstName?: string;
+  surname: string;
+  firstName: string;
+  password: string;
 }

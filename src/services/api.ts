@@ -1,8 +1,13 @@
-import type { AdminLoginRequest, AdminProfile, AdminRegisterRequest, LoginResponse } from '../types/auth';
+import { AxiosError } from 'axios';
+import { apiClient } from './apiClient';
+import type {
+  AdminLoginRequest,
+  AdminLoginResponse,
+  AdminRegisterRequest,
+  AdminProfile,
+} from '../types/auth';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/admin';
-
-class ApiError extends Error {
+export class ApiError extends Error {
   status: number;
   constructor(message: string, status: number) {
     super(message);
@@ -10,67 +15,53 @@ class ApiError extends Error {
   }
 }
 
-export async function loginApi(data: AdminLoginRequest): Promise<LoginResponse> {
-  const response = await fetch(`${API_BASE_URL}/login`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    let message = 'Login failed. Please check your credentials.';
-    try {
-      const errJson = JSON.parse(errorText);
-      if (errJson.message) message = errJson.message;
-    } catch {
-      if (errorText) message = errorText;
-    }
-    throw new ApiError(message, response.status);
-  }
-
-  return response.json();
+interface BackendErrorShape {
+  message?: string;
 }
 
-export async function logoutApi(token: string): Promise<void> {
+function toApiError(err: unknown, fallbackMessage: string): ApiError {
+  if (err instanceof AxiosError) {
+    const data = err.response?.data as BackendErrorShape | string | undefined;
+    const message =
+      (typeof data === 'object' && data?.message) ||
+      (typeof data === 'string' && data) ||
+      fallbackMessage;
+    return new ApiError(message, err.response?.status ?? 0);
+  }
+  return new ApiError(fallbackMessage, 0);
+}
+
+export async function registerApi(data: AdminRegisterRequest): Promise<AdminProfile> {
   try {
-    await fetch(`${API_BASE_URL}/logout`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await apiClient.post<AdminProfile>('/auth/register', data);
+    return response.data;
   } catch (err) {
-    console.warn('Logout request completed with warning:', err);
+    throw toApiError(err, 'Registration failed. Please try again.');
   }
 }
 
-export async function getProfileApi(token: string): Promise<AdminProfile> {
-  const response = await fetch(`${API_BASE_URL}/profile`, {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-  });
-
-  if (!response.ok) {
-    throw new ApiError('Failed to fetch profile', response.status);
+export async function loginApi(credentials: AdminLoginRequest): Promise<AdminLoginResponse> {
+  try {
+    const response = await apiClient.post<AdminLoginResponse>('/auth/login', credentials);
+    return response.data;
+  } catch (err) {
+    throw toApiError(err, 'Login failed. Please check your credentials.');
   }
-
-  return response.json();
 }
 
-export async function registerApi(data: AdminRegisterRequest): Promise<{ success: boolean; message: string }> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        success: true,
-        message: `Account for ${data.email} registered successfully. You can now login.`,
-      });
-    }, 600);
-  });
+export async function logoutApi(): Promise<void> {
+  try {
+    await apiClient.post('/auth/logout');
+  } catch (err) {
+    throw toApiError(err, 'Logout failed.');
+  }
+}
+
+export async function getProfileApi(): Promise<AdminProfile> {
+  try {
+    const response = await apiClient.get<AdminProfile>('/auth/profile');
+    return response.data;
+  } catch (err) {
+    throw toApiError(err, 'Failed to load profile.');
+  }
 }

@@ -1,27 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Container,
-  Paper,
-  Typography,
-  Box,
-  Button,
-  Grid,
-  Chip,
-  Avatar,
-  Divider,
-  Stack,
-  Card,
-} from '@mui/material';
-import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
-import LogoutIcon from '@mui/icons-material/Logout';
-import MailIcon from '@mui/icons-material/Mail';
-import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
-import KeyIcon from '@mui/icons-material/Key';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import { useAuth } from '../context/AuthContext';
+import { LogOut, User, Mail, Calendar, Key, ShieldCheck, Clock } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 
 export const AdminInfoPage: React.FC = () => {
   const { admin, logout } = useAuth();
@@ -41,215 +21,123 @@ export const AdminInfoPage: React.FC = () => {
     }
   };
 
-  const fullName =
-    admin?.surname || admin?.firstName
-      ? `${admin.surname || ''} ${admin.firstName || ''}`.trim()
-      : 'System Administrator';
-
   return (
-    <Container maxWidth="md">
-      <Paper
-        elevation={0}
-        sx={{
-          p: { xs: 3, sm: 5 },
-          background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
-          backdropFilter: 'blur(16px)',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
-          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)',
+    <div className="main-content animate-fade-in" style={{ width: '100%', maxWidth: '900px' }}>
+      <div
+        className="glass-card"
+        style={{
+          width: '100%',
+          padding: '40px',
         }}
       >
-        {/* Top Header Row */}
-        <Stack
-          direction={{ xs: 'column', sm: 'row' }}
-          spacing={2}
-          sx={{
+        {/* Header */}
+        <div
+          style={{
+            display: 'flex',
             justifyContent: 'space-between',
-            alignItems: { xs: 'flex-start', sm: 'center' },
-            mb: 4,
+            alignItems: 'center',
+            borderBottom: '1px solid var(--border-color)',
+            paddingBottom: '24px',
+            marginBottom: '32px',
           }}
         >
-          <Box>
-            <Chip
-              icon={<VerifiedUserIcon sx={{ fontSize: '16px !important', color: '#34D399 !important' }} />}
-              label="Admin Profile Verified"
-              size="small"
-              sx={{
-                borderColor: 'rgba(52, 211, 153, 0.3)',
-                backgroundColor: 'rgba(52, 211, 153, 0.1)',
-                color: '#6EE7B7',
-                fontWeight: 600,
-                mb: 1,
-              }}
-            />
-            <Typography
-              variant="h1"
-              component="h1"
+          <div>
+            <div className="hero-badge" style={{ marginBottom: '8px' }}>
+              <ShieldCheck size={14} />
+              <span>Admin Profile Verified</span>
+            </div>
+            <h1
               id="admin-info-heading"
-              sx={{
+              style={{
+                fontFamily: 'var(--font-heading)',
+                fontSize: '2.5rem',
+                fontWeight: 800,
                 background: 'linear-gradient(90deg, #FFFFFF 0%, #C7D2FE 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
-                fontSize: { xs: '2rem', sm: '2.5rem' },
               }}
             >
               Admin Information
-            </Typography>
-          </Box>
+            </h1>
+          </div>
 
-          <Button
-            variant="contained"
-            color="error"
-            startIcon={<LogoutIcon />}
-            id="admin-info-logout-btn"
+          <button
             onClick={handleLogout}
-            sx={{
-              py: 1.2,
-              px: 3,
-              background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
-              '&:hover': {
-                background: 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)',
-                boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
-              },
+            className="btn btn-danger"
+            id="admin-info-logout-btn"
+            style={{ padding: '12px 24px' }}
+          >
+            <LogOut size={18} />
+            <span>Logout</span>
+          </button>
+        </div>
+
+        {/* Administrator Details */}
+        <div style={{ marginBottom: '32px' }}>
+          <h2
+            style={{
+              fontFamily: 'var(--font-heading)',
+              fontSize: '1.25rem',
+              fontWeight: 600,
+              marginBottom: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
             }}
           >
-            Logout
-          </Button>
-        </Stack>
+            <User size={20} color="#818CF8" />
+            <span>Administrator Information</span>
+          </h2>
 
-        <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.08)', mb: 4 }} />
+          <div className="info-grid">
+            <div className="info-item">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Mail size={16} color="var(--primary-light)" />
+                <span className="info-label">Email Address</span>
+              </div>
+              <span className="info-value" id="adm-email">{admin?.email || 'N/A'}</span>
+            </div>
 
-        {/* Profile Avatar Card */}
-        <Card
-          variant="outlined"
-          sx={{
-            mb: 4,
-            p: 3,
-            backgroundColor: 'rgba(15, 23, 42, 0.5)',
-            borderColor: 'rgba(99, 102, 241, 0.2)',
-          }}
-        >
-          <Stack
-            direction={{ xs: 'column', sm: 'row' }}
-            spacing={3}
-            sx={{ alignItems: 'center' }}
-          >
-            <Avatar
-              sx={{
-                width: 72,
-                height: 72,
-                background: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)',
-                boxShadow: '0 6px 16px rgba(99, 102, 241, 0.35)',
-              }}
-            >
-              <AdminPanelSettingsIcon sx={{ fontSize: 40, color: '#FFFFFF' }} />
-            </Avatar>
+            <div className="info-item">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <User size={16} color="var(--primary-light)" />
+                <span className="info-label">Full Name</span>
+              </div>
+              <span className="info-value" id="adm-fullname">
+                {admin?.surname || admin?.firstName
+                  ? `${admin.surname || ''} ${admin.firstName || ''}`.trim()
+                  : 'System Administrator'}
+              </span>
+            </div>
 
-            <Box sx={{ flex: 1, textAlign: { xs: 'center', sm: 'left' } }}>
-              <Typography variant="h3" component="h2" sx={{ fontSize: '1.5rem', mb: 0.5 }}>
-                {fullName}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {admin?.email || 'N/A'}
-              </Typography>
-            </Box>
-
-            <Chip
-              label="Active Session"
-              color="success"
-              size="small"
-              sx={{
-                backgroundColor: 'rgba(16, 185, 129, 0.15)',
-                color: '#34D399',
-                borderColor: 'rgba(16, 185, 129, 0.3)',
-                border: '1px solid',
-                fontWeight: 600,
-              }}
-            />
-          </Stack>
-        </Card>
-
-        {/* Details Grid */}
-        <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1, fontWeight: 700 }}>
-          <PersonOutlinedIcon sx={{ color: '#818CF8' }} /> Account Details
-        </Typography>
-
-        <Grid container spacing={2.5}>
-          {/* Email */}
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <Card variant="outlined" sx={{ p: 2.5, backgroundColor: 'rgba(15, 23, 42, 0.4)' }}>
-              <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', mb: 1 }}>
-                <MailIcon sx={{ color: '#818CF8', fontSize: 20 }} />
-                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                  Email Address
-                </Typography>
-              </Stack>
-              <Typography variant="body1" id="adm-email" sx={{ fontWeight: 600, wordBreak: 'break-all' }}>
-                {admin?.email || 'N/A'}
-              </Typography>
-            </Card>
-          </Grid>
-
-          {/* Full Name */}
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <Card variant="outlined" sx={{ p: 2.5, backgroundColor: 'rgba(15, 23, 42, 0.4)' }}>
-              <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', mb: 1 }}>
-                <PersonOutlinedIcon sx={{ color: '#818CF8', fontSize: 20 }} />
-                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                  Full Name
-                </Typography>
-              </Stack>
-              <Typography variant="body1" id="adm-fullname" sx={{ fontWeight: 600 }}>
-                {fullName}
-              </Typography>
-            </Card>
-          </Grid>
-
-          {/* Account ID */}
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <Card variant="outlined" sx={{ p: 2.5, backgroundColor: 'rgba(15, 23, 42, 0.4)' }}>
-              <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', mb: 1 }}>
-                <KeyIcon sx={{ color: '#818CF8', fontSize: 20 }} />
-                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                  Account ID
-                </Typography>
-              </Stack>
-              <Typography variant="body2" color="#CBD5E1" id="adm-id" sx={{ fontFamily: 'monospace', wordBreak: 'break-all' }}>
+            <div className="info-item">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Key size={16} color="var(--primary-light)" />
+                <span className="info-label">Account ID</span>
+              </div>
+              <span className="info-value" style={{ fontSize: '0.85rem' }} id="adm-id">
                 {admin?.id || 'N/A'}
-              </Typography>
-            </Card>
-          </Grid>
+              </span>
+            </div>
 
-          {/* Last Login */}
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <Card variant="outlined" sx={{ p: 2.5, backgroundColor: 'rgba(15, 23, 42, 0.4)' }}>
-              <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', mb: 1 }}>
-                <AccessTimeIcon sx={{ color: '#818CF8', fontSize: 20 }} />
-                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                  Last Login
-                </Typography>
-              </Stack>
-              <Typography variant="body1" id="adm-lastlogin" sx={{ fontWeight: 600 }}>
-                {formatDate(admin?.lastLogin)}
-              </Typography>
-            </Card>
-          </Grid>
+            <div className="info-item">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Clock size={16} color="var(--primary-light)" />
+                <span className="info-label">Last Login</span>
+              </div>
+              <span className="info-value" id="adm-lastlogin">{formatDate(admin?.lastLogin)}</span>
+            </div>
 
-          {/* Created At */}
-          <Grid size={{ xs: 12 }}>
-            <Card variant="outlined" sx={{ p: 2.5, backgroundColor: 'rgba(15, 23, 42, 0.4)' }}>
-              <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', mb: 1 }}>
-                <CalendarTodayIcon sx={{ color: '#818CF8', fontSize: 20 }} />
-                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                  Account Created At
-                </Typography>
-              </Stack>
-              <Typography variant="body1" id="adm-createdat" sx={{ fontWeight: 600 }}>
-                {formatDate(admin?.createdAt)}
-              </Typography>
-            </Card>
-          </Grid>
-        </Grid>
-      </Paper>
-    </Container>
+            <div className="info-item">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Calendar size={16} color="var(--primary-light)" />
+                <span className="info-label">Created At</span>
+              </div>
+              <span className="info-value" id="adm-createdat">{formatDate(admin?.createdAt)}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };

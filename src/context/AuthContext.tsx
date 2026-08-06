@@ -1,8 +1,10 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useEffect, useState, useCallback } from 'react';
 import type { AdminProfile, AdminLoginRequest } from '../types/auth';
 import { loginApi, logoutApi, getProfileApi } from '../services/api';
+import { authStorage } from '../services/authStorage';
+import { authEvents } from '../services/authEvents';
 
-interface AuthContextType {
+export interface AuthContextType {
   token: string | null;
   admin: AdminProfile | null;
   isAuthenticated: boolean;
@@ -11,32 +13,40 @@ interface AuthContextType {
   logout: () => Promise<void>;
 }
 
-const TOKEN_KEY = 'teacher_management_token';
-const ADMIN_KEY = 'teacher_management_admin';
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem(TOKEN_KEY));
-  const [admin, setAdmin] = useState<AdminProfile | null>(() => {
-    const savedAdmin = localStorage.getItem(ADMIN_KEY);
-    return savedAdmin ? JSON.parse(savedAdmin) : null;
-  });
+  const [token, setToken] = useState<string | null>(() => authStorage.getToken());
+  const [admin, setAdmin] = useState<AdminProfile | null>(() => authStorage.getAdmin());
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const logout = useCallback(async () => {
+    try {
+      await logoutApi();
+    } catch {
+    }
+    setToken(null);
+    setAdmin(null);
+    authStorage.clearSession();
+  }, []);
+
+  useEffect(() => {
+    authEvents.onUnauthorized(() => {
+      logout();
+    });
+  }, [logout]);
 
   useEffect(() => {
     const initAuth = async () => {
-      const savedToken = localStorage.getItem(TOKEN_KEY);
+      const savedToken = authStorage.getToken();
       if (savedToken) {
         try {
-          const profile = await getProfileApi(savedToken);
+          const profile = await getProfileApi();
           setAdmin(profile);
-          localStorage.setItem(ADMIN_KEY, JSON.stringify(profile));
+          authStorage.setSession(savedToken, profile);
         } catch {
           setToken(null);
           setAdmin(null);
-          localStorage.removeItem(TOKEN_KEY);
-          localStorage.removeItem(ADMIN_KEY);
+          authStorage.clearSession();
         }
       }
       setIsLoading(false);
@@ -46,43 +56,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (credentials: AdminLoginRequest) => {
+    console.log('Logging in with credentials:', credentials);
     const response = await loginApi(credentials);
     setToken(response.token);
     setAdmin(response.admin);
-    localStorage.setItem(TOKEN_KEY, response.token);
-    localStorage.setItem(ADMIN_KEY, JSON.stringify(response.admin));
-  };
-
-  const logout = async () => {
-    if (token) {
-      await logoutApi(token);
-    }
-    setToken(null);
-    setAdmin(null);
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(ADMIN_KEY);
+    authStorage.setSession(response.token, response.admin);
   };
 
   return (
     <AuthContext.Provider
-      value={{
-        token,
-        admin,
-        isAuthenticated: !!token,
-        isLoading,
-        login,
-        logout,
-      }}
+      value={{ token, admin, isAuthenticated: !!token, isLoading, login, logout }}
     >
       {children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 };
