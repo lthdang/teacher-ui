@@ -1,6 +1,25 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { LogIn, Mail, Lock, AlertCircle, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
+import {
+  Container,
+  Paper,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Alert,
+  InputAdornment,
+  IconButton,
+  CircularProgress,
+  Link,
+  Stack,
+} from '@mui/material';
+import LogInIcon from '@mui/icons-material/Login';
+import EmailIcon from '@mui/icons-material/Email';
+import LockIcon from '@mui/icons-material/Lock';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useAuth } from '../hooks/useAuth';
 import { ROUTE_PATHS } from '../router/routePaths';
 
@@ -43,137 +62,156 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="main-content animate-fade-in" style={{ width: '100%' }}>
-      <div
-        className="glass-card"
-        style={{
+    <Container maxWidth="xs">
+      <Paper
+        elevation={0}
+        sx={{
+          p: { xs: 3, sm: 4 },
           width: '100%',
-          maxWidth: '440px',
-          padding: '40px 32px',
+          background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
+          backdropFilter: 'blur(16px)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)',
         }}
       >
-        <div style={{ marginBottom: '28px', textAlign: 'center' }}>
-          <div
-            className="brand-icon"
-            style={{ margin: '0 auto 16px', width: '52px', height: '52px' }}
+        <Box sx={{ mb: 3, textAlign: 'center' }}>
+          <Box
+            sx={{
+              width: 52,
+              height: 52,
+              borderRadius: '14px',
+              background: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              mx: 'auto',
+              mb: 2,
+              boxShadow: '0 8px 20px rgba(99, 102, 241, 0.35)',
+            }}
           >
-            <LogIn size={28} color="#FFFFFF" />
-          </div>
-          <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.75rem', fontWeight: 700 }}>
+            <LogInIcon sx={{ color: '#FFFFFF', fontSize: 28 }} />
+          </Box>
+          <Typography variant="h2" component="h2" sx={{ mb: 0.5, fontWeight: 700 }}>
             Admin Login
-          </h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '6px' }}>
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
             Enter your credentials to access the Dashboard
-          </p>
-        </div>
+          </Typography>
+        </Box>
 
         {error && (
-          <div className="alert alert-danger" id="login-error-alert">
-            <AlertCircle size={20} />
-            <span>{error}</span>
-          </div>
+          <Alert severity="error" id="login-error-alert" sx={{ mb: 3, borderRadius: 2 }}>
+            {error}
+          </Alert>
         )}
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="form-label" htmlFor="login-email">Email Address</label>
-            <div style={{ position: 'relative' }}>
-              <Mail
-                size={18}
-                style={{
-                  position: 'absolute',
-                  left: '14px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: 'var(--text-muted)',
-                }}
-              />
-              <input
-                id="login-email"
-                type="email"
-                className="form-input"
-                style={{ paddingLeft: '44px' }}
-                placeholder="name@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-          </div>
+        <Box component="form" onSubmit={handleSubmit} noValidate>
+          <Stack spacing={2.5}>
+            <TextField
+              id="login-email"
+              label="Email Address"
+              type="email"
+              fullWidth
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="name@example.com"
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <EmailIcon sx={{ color: 'text.secondary', fontSize: 20 }} />
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
 
-          <div className="form-group">
-            <label className="form-label" htmlFor="login-password">Password</label>
-            <div style={{ position: 'relative' }}>
-              <Lock
-                size={18}
-                style={{
-                  position: 'absolute',
-                  left: '14px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: 'var(--text-muted)',
-                }}
-              />
-              <input
-                id="login-password"
-                type={showPassword ? 'text' : 'password'}
-                className="form-input"
-                style={{ paddingLeft: '44px', paddingRight: '44px' }}
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: 'absolute',
-                  right: '12px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--text-muted)',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: '4px',
-                }}
-                id="toggle-login-password-btn"
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
-          </div>
+            <TextField
+              id="login-password"
+              label="Password"
+              type={showPassword ? 'text' : 'password'}
+              fullWidth
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LockIcon sx={{ color: 'text.secondary', fontSize: 20 }} />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        id="toggle-login-password-btn"
+                        onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                        sx={{ color: 'text.secondary' }}
+                      >
+                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
 
-          <button
-            type="submit"
-            className="btn btn-primary btn-full"
-            style={{ marginTop: '24px' }}
-            disabled={isSubmitting}
-            id="login-submit-btn"
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              size="large"
+              disabled={isSubmitting}
+              id="login-submit-btn"
+              startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : <LogInIcon />}
+              sx={{
+                py: 1.5,
+                fontSize: '1rem',
+                fontWeight: 600,
+                mt: 1,
+              }}
+            >
+              {isSubmitting ? 'Authenticating...' : 'Sign In'}
+            </Button>
+          </Stack>
+        </Box>
+
+        <Box sx={{ mt: 3.5, textAlign: 'center' }}>
+          <Typography variant="body2" color="text.secondary">
+            Don't have an account?{' '}
+            <Link
+              component={RouterLink}
+              to={ROUTE_PATHS.REGISTER}
+              sx={{ color: 'primary.light', fontWeight: 600, textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
+            >
+              Register here
+            </Link>
+          </Typography>
+        </Box>
+
+        <Box sx={{ mt: 2, textAlign: 'center' }}>
+          <Link
+            component={RouterLink}
+            to={ROUTE_PATHS.HOME}
+            sx={{
+              color: 'text.secondary',
+              fontSize: '0.85rem',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 0.5,
+              textDecoration: 'none',
+              '&:hover': { color: 'text.primary' },
+            }}
           >
-            <LogIn size={20} />
-            <span>{isSubmitting ? 'Authenticating...' : 'Sign In'}</span>
-          </button>
-        </form>
-
-        <div style={{ marginTop: '28px', textAlign: 'center', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-          Don't have an account?{' '}
-          <Link to={ROUTE_PATHS.REGISTER} style={{ color: 'var(--primary-light)', fontWeight: 600 }}>
-            Register here
+            <ArrowBackIcon sx={{ fontSize: 16 }} /> Back to Homepage
           </Link>
-        </div>
-
-        <div style={{ marginTop: '16px', textAlign: 'center' }}>
-          <Link to={ROUTE_PATHS.HOME} style={{ color: 'var(--text-dark)', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-            <ArrowLeft size={14} /> Back to Homepage
-          </Link>
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Paper>
+    </Container>
   );
 };
