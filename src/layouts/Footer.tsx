@@ -25,7 +25,7 @@ export const Footer: React.FC = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <SchoolIcon sx={{ color: '#6366F1', fontSize: 22 }} />
             <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
-              Teacher Management System &copy; {new Date().getFullYear()}
+              Teacher &copy; {new Date().getFullYear()}
             </Typography>
           </Box>
 

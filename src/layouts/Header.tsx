@@ -14,7 +14,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import LogoutIcon from '@mui/icons-material/Logout';
 import LoginIcon from '@mui/icons-material/Login';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 export const Header: React.FC = () => {
   const { isAuthenticated, admin, logout } = useAuth();
@@ -66,7 +66,7 @@ export const Header: React.FC = () => {
                 letterSpacing: '-0.01em',
               }}
             >
-              Teacher Management
+              Teacher
             </Typography>
           </Box>
 
