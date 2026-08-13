@@ -26,3 +26,15 @@ export interface AdminRegisterRequest {
   firstName: string;
   password: string;
 }
+
+export interface AdminUpdateRequest {
+  surname?: string | null;
+  firstName?: string | null;
+  avatar?: string | null;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+

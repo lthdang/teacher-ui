@@ -4,6 +4,8 @@ import type {
   AdminLoginRequest,
   AdminLoginResponse,
   AdminRegisterRequest,
+  AdminUpdateRequest,
+  ChangePasswordRequest,
   AdminProfile,
 } from '../types/auth';
 
@@ -63,5 +65,22 @@ export async function getProfileApi(): Promise<AdminProfile> {
     return response.data;
   } catch (err) {
     throw toApiError(err, 'Failed to load profile.');
+  }
+}
+
+export async function updateProfileApi(data: AdminUpdateRequest): Promise<AdminProfile> {
+  try {
+    const response = await apiClient.put<AdminProfile>('/auth/profile', data);
+    return response.data;
+  } catch (err) {
+    throw toApiError(err, 'Failed to update profile.');
+  }
+}
+
+export async function changePasswordApi(data: ChangePasswordRequest): Promise<void> {
+  try {
+    await apiClient.put('/auth/password', data);
+  } catch (err) {
+    throw toApiError(err, 'Failed to change password.');
   }
 }
