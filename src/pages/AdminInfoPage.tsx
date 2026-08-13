@@ -1,5 +1,4 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import {
   Container,
   Paper,
@@ -11,8 +10,17 @@ import {
   Chip,
   Button,
   Stack,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Snackbar,
+  Alert,
+  CircularProgress,
 } from '@mui/material';
-import LogoutIcon from '@mui/icons-material/Logout';
+import EditIcon from '@mui/icons-material/Edit';
+import LockResetIcon from '@mui/icons-material/LockReset';
 import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
@@ -20,15 +28,43 @@ import KeyIcon from '@mui/icons-material/Key';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { useAuth } from '../hooks/useAuth';
+import { updateProfileApi, changePasswordApi, ApiError } from '../services/api';
 
 export const AdminInfoPage: React.FC = () => {
-  const { admin, logout } = useAuth();
-  const navigate = useNavigate();
+  const { admin, setAdminProfile, refreshProfile } = useAuth();
 
-  const handleLogout = async () => {
-    navigate('/');
-    await logout();
-  };
+  // Profile Edit Modal State
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [surname, setSurname] = useState(admin?.surname || '');
+  const [firstName, setFirstName] = useState(admin?.firstName || '');
+  const [avatar, setAvatar] = useState(admin?.avatar || '');
+  const [profileErrors, setProfileErrors] = useState<{ surname?: string; firstName?: string }>({});
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileApiError, setProfileApiError] = useState<string | null>(null);
+
+  // Change Password Modal State
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordErrors, setPasswordErrors] = useState<{
+    oldPassword?: string;
+    newPassword?: string;
+    confirmPassword?: string;
+  }>({});
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordApiError, setPasswordApiError] = useState<string | null>(null);
+
+  // Snackbar Notification State
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'error';
+  }>({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
 
   const formatDate = (dateStr?: string | null) => {
     if (!dateStr) return 'N/A';
@@ -40,10 +76,149 @@ export const AdminInfoPage: React.FC = () => {
   };
 
   const fullName = admin?.surname || admin?.firstName
-    ? `${admin.surname || ''} ${admin.firstName || ''}`.trim()
+    ? `${admin?.surname || ''} ${admin?.firstName || ''}`.trim()
     : 'System Administrator';
 
   const avatarInitial = (admin?.firstName?.[0] || admin?.email?.[0] || 'A').toUpperCase();
+
+  // Handle Profile Modal Open
+  const handleOpenProfileModal = () => {
+    setSurname(admin?.surname || '');
+    setFirstName(admin?.firstName || '');
+    setAvatar(admin?.avatar || '');
+    setProfileErrors({});
+    setProfileApiError(null);
+    setProfileModalOpen(true);
+  };
+
+  // Handle Profile Modal Close
+  const handleCloseProfileModal = () => {
+    setProfileModalOpen(false);
+    setProfileErrors({});
+    setProfileApiError(null);
+  };
+
+  // Validate Profile Form
+  const validateProfileForm = (): boolean => {
+    const errors: { surname?: string; firstName?: string } = {};
+    if (!surname.trim()) {
+      errors.surname = 'Surname is required';
+    }
+    if (!firstName.trim()) {
+      errors.firstName = 'First name is required';
+    }
+    setProfileErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  // Submit Profile Update
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateProfileForm()) return;
+
+    setProfileLoading(true);
+    setProfileApiError(null);
+    try {
+      const updatedAdmin = await updateProfileApi({
+        surname: surname.trim(),
+        firstName: firstName.trim(),
+        avatar: avatar.trim() || undefined,
+      });
+      setAdminProfile(updatedAdmin);
+      await refreshProfile();
+      setProfileModalOpen(false);
+      setSnackbar({
+        open: true,
+        message: 'Admin profile updated successfully!',
+        severity: 'success',
+      });
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setProfileApiError(err.message);
+      } else {
+        setProfileApiError('Failed to update profile. Please try again.');
+      }
+    } finally {
+      setProfileLoading(false);
+    }
+  };
+
+  // Handle Password Modal Open
+  const handleOpenPasswordModal = () => {
+    setOldPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+    setPasswordErrors({});
+    setPasswordApiError(null);
+    setPasswordModalOpen(true);
+  };
+
+  // Handle Password Modal Close
+  const handleClosePasswordModal = () => {
+    setPasswordModalOpen(false);
+    setPasswordErrors({});
+    setPasswordApiError(null);
+  };
+
+  // Validate Password Form
+  const validatePasswordForm = (): boolean => {
+    const errors: {
+      oldPassword?: string;
+      newPassword?: string;
+      confirmPassword?: string;
+    } = {};
+
+    if (!oldPassword) {
+      errors.oldPassword = 'Old password is required';
+    }
+
+    if (!newPassword) {
+      errors.newPassword = 'New password is required';
+    } else if (newPassword.length < 8) {
+      errors.newPassword = 'New password must be at least 8 characters long';
+    }
+
+    if (!confirmPassword) {
+      errors.confirmPassword = 'Confirm password is required';
+    } else if (confirmPassword !== newPassword) {
+      errors.confirmPassword = 'Confirm new password does not match new password';
+    }
+
+    setPasswordErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  // Submit Password Change
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validatePasswordForm()) return;
+
+    setPasswordLoading(true);
+    setPasswordApiError(null);
+    try {
+      await changePasswordApi({
+        currentPassword: oldPassword,
+        newPassword: newPassword,
+      });
+      setPasswordModalOpen(false);
+      setSnackbar({
+        open: true,
+        message: 'Password changed successfully!',
+        severity: 'success',
+      });
+      setOldPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setPasswordApiError(err.message);
+      } else {
+        setPasswordApiError('Failed to change password. Please check your old password.');
+      }
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
 
   return (
     <Container maxWidth="md">
@@ -99,29 +274,49 @@ export const AdminInfoPage: React.FC = () => {
             </Typography>
           </Box>
 
-          <Button
-            variant="contained"
-            color="error"
-            startIcon={<LogoutIcon />}
-            onClick={handleLogout}
-            id="admin-info-logout-btn"
-            sx={{
-              py: 1.2,
-              px: 3,
-              background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
-              '&:hover': {
-                background: 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)',
-                boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
-              },
-            }}
-          >
-            Logout
-          </Button>
+          <Stack direction="row" spacing={1.5}>
+            <Button
+              variant="contained"
+              startIcon={<EditIcon />}
+              onClick={handleOpenProfileModal}
+              id="admin-info-update-btn"
+              sx={{
+                py: 1.2,
+                px: 2.5,
+                background: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #4F46E5 0%, #4338CA 100%)',
+                  boxShadow: '0 4px 12px rgba(99, 102, 241, 0.35)',
+                },
+              }}
+            >
+              Update Admin Profile
+            </Button>
+            <Button
+              variant="outlined"
+              startIcon={<LockResetIcon />}
+              onClick={handleOpenPasswordModal}
+              id="admin-info-change-password-btn"
+              sx={{
+                py: 1.2,
+                px: 2.5,
+                borderColor: 'rgba(255, 255, 255, 0.2)',
+                color: '#E0E7FF',
+                '&:hover': {
+                  borderColor: '#818CF8',
+                  backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                },
+              }}
+            >
+              Change Password
+            </Button>
+          </Stack>
         </Stack>
 
         {/* Admin Profile Overview */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 4 }}>
           <Avatar
+            src={admin?.avatar || undefined}
             sx={{
               width: 72,
               height: 72,
@@ -267,6 +462,207 @@ export const AdminInfoPage: React.FC = () => {
             </Box>
           </Grid>
         </Grid>
+
+        {/* Update Profile Dialog Modal */}
+        <Dialog
+          open={profileModalOpen}
+          onClose={handleCloseProfileModal}
+          fullWidth
+          maxWidth="sm"
+          slotProps={{
+            paper: {
+              sx: {
+                background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.98) 0%, rgba(15, 23, 42, 0.98) 100%)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                backdropFilter: 'blur(16px)',
+                color: '#F8FAFC',
+              },
+            },
+          }}
+        >
+          <form onSubmit={handleUpdateProfile}>
+            <DialogTitle sx={{ fontWeight: 700, fontSize: '1.25rem' }}>
+              Update Admin Profile
+            </DialogTitle>
+            <DialogContent dividers sx={{ borderColor: 'rgba(255, 255, 255, 0.08)' }}>
+              {profileApiError && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  {profileApiError}
+                </Alert>
+              )}
+              <Stack spacing={2.5} sx={{ mt: 1 }}>
+                <TextField
+                  label="Surname"
+                  variant="outlined"
+                  fullWidth
+                  id="update-surname-input"
+                  value={surname}
+                  onChange={(e) => setSurname(e.target.value)}
+                  error={!!profileErrors.surname}
+                  helperText={profileErrors.surname}
+                  slotProps={{
+                    inputLabel: { sx: { color: 'rgba(255, 255, 255, 0.7)' } },
+                    input: { sx: { color: '#FFFFFF' } },
+                  }}
+                />
+                <TextField
+                  label="First Name"
+                  variant="outlined"
+                  fullWidth
+                  id="update-firstname-input"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  error={!!profileErrors.firstName}
+                  helperText={profileErrors.firstName}
+                  slotProps={{
+                    inputLabel: { sx: { color: 'rgba(255, 255, 255, 0.7)' } },
+                    input: { sx: { color: '#FFFFFF' } },
+                  }}
+                />
+                <TextField
+                  label="Avatar URL"
+                  variant="outlined"
+                  fullWidth
+                  id="update-avatar-input"
+                  value={avatar}
+                  onChange={(e) => setAvatar(e.target.value)}
+                  placeholder="https://example.com/avatar.png"
+                  slotProps={{
+                    inputLabel: { sx: { color: 'rgba(255, 255, 255, 0.7)' } },
+                    input: { sx: { color: '#FFFFFF' } },
+                  }}
+                />
+              </Stack>
+            </DialogContent>
+            <DialogActions sx={{ p: 2.5, borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <Button onClick={handleCloseProfileModal} sx={{ color: 'text.secondary' }}>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={profileLoading}
+                startIcon={profileLoading ? <CircularProgress size={18} color="inherit" /> : null}
+                sx={{
+                  background: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)',
+                }}
+              >
+                Save Changes
+              </Button>
+            </DialogActions>
+          </form>
+        </Dialog>
+
+        {/* Change Password Dialog Modal */}
+        <Dialog
+          open={passwordModalOpen}
+          onClose={handleClosePasswordModal}
+          fullWidth
+          maxWidth="sm"
+          slotProps={{
+            paper: {
+              sx: {
+                background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.98) 0%, rgba(15, 23, 42, 0.98) 100%)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                backdropFilter: 'blur(16px)',
+                color: '#F8FAFC',
+              },
+            },
+          }}
+        >
+          <form onSubmit={handleChangePassword}>
+            <DialogTitle sx={{ fontWeight: 700, fontSize: '1.25rem' }}>
+              Change Password
+            </DialogTitle>
+            <DialogContent dividers sx={{ borderColor: 'rgba(255, 255, 255, 0.08)' }}>
+              {passwordApiError && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  {passwordApiError}
+                </Alert>
+              )}
+              <Stack spacing={2.5} sx={{ mt: 1 }}>
+                <TextField
+                  label="Old Password"
+                  type="password"
+                  variant="outlined"
+                  fullWidth
+                  id="change-old-password-input"
+                  value={oldPassword}
+                  onChange={(e) => setOldPassword(e.target.value)}
+                  error={!!passwordErrors.oldPassword}
+                  helperText={passwordErrors.oldPassword}
+                  slotProps={{
+                    inputLabel: { sx: { color: 'rgba(255, 255, 255, 0.7)' } },
+                    input: { sx: { color: '#FFFFFF' } },
+                  }}
+                />
+                <TextField
+                  label="New Password"
+                  type="password"
+                  variant="outlined"
+                  fullWidth
+                  id="change-new-password-input"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  error={!!passwordErrors.newPassword}
+                  helperText={passwordErrors.newPassword || 'Minimum 8 characters'}
+                  slotProps={{
+                    inputLabel: { sx: { color: 'rgba(255, 255, 255, 0.7)' } },
+                    input: { sx: { color: '#FFFFFF' } },
+                  }}
+                />
+                <TextField
+                  label="Confirm New Password"
+                  type="password"
+                  variant="outlined"
+                  fullWidth
+                  id="change-confirm-password-input"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  error={!!passwordErrors.confirmPassword}
+                  helperText={passwordErrors.confirmPassword}
+                  slotProps={{
+                    inputLabel: { sx: { color: 'rgba(255, 255, 255, 0.7)' } },
+                    input: { sx: { color: '#FFFFFF' } },
+                  }}
+                />
+              </Stack>
+            </DialogContent>
+            <DialogActions sx={{ p: 2.5, borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <Button onClick={handleClosePasswordModal} sx={{ color: 'text.secondary' }}>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={passwordLoading}
+                startIcon={passwordLoading ? <CircularProgress size={18} color="inherit" /> : null}
+                sx={{
+                  background: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)',
+                }}
+              >
+                Update Password
+              </Button>
+            </DialogActions>
+          </form>
+        </Dialog>
+
+        {/* Global Toast Notification */}
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={4000}
+          onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        >
+          <Alert
+            onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
+            severity={snackbar.severity}
+            variant="filled"
+            sx={{ width: '100%' }}
+          >
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
       </Paper>
     </Container>
   );

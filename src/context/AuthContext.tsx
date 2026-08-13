@@ -11,6 +11,8 @@ export interface AuthContextType {
   isLoading: boolean;
   login: (credentials: AdminLoginRequest) => Promise<void>;
   logout: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
+  setAdminProfile: (updated: AdminProfile) => void;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -28,6 +30,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAdmin(null);
     authStorage.clearSession();
   }, []);
+
+  const setAdminProfile = useCallback((updated: AdminProfile) => {
+    setAdmin(updated);
+    const currentToken = authStorage.getToken();
+    if (currentToken) {
+      authStorage.setSession(currentToken, updated);
+    }
+  }, []);
+
+  const refreshProfile = useCallback(async () => {
+    try {
+      const profile = await getProfileApi();
+      setAdminProfile(profile);
+    } catch (err) {
+      console.error('Failed to refresh profile:', err);
+    }
+  }, [setAdminProfile]);
 
   useEffect(() => {
     authEvents.onUnauthorized(() => {
@@ -65,7 +84,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   return (
     <AuthContext.Provider
-      value={{ token, admin, isAuthenticated: !!token, isLoading, login, logout }}
+      value={{
+        token,
+        admin,
+        isAuthenticated: !!token,
+        isLoading,
+        login,
+        logout,
+        refreshProfile,
+        setAdminProfile,
+      }}
     >
       {children}
     </AuthContext.Provider>
