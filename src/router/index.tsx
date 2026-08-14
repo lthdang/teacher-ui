@@ -1,22 +1,21 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import { MainLayout } from '../layouts/MainLayout';
 import { AuthLayout } from '../layouts/AuthLayout';
 import { DashboardLayout } from '../layouts/DashboardLayout';
 import { ProtectedRoute } from '../components/ProtectedRoute';
-import { HomePage } from '../pages/HomePage';
+import { SuperAdminRoute } from '../components/SuperAdminRoute';
+import { RootRedirect } from '../components/RootRedirect';
 import { LoginPage } from '../pages/LoginPage';
-import { RegisterPage } from '../pages/RegisterPage';
 import { DashboardPage } from '../pages/DashboardPage';
 import { AdminInfoPage } from '../pages/AdminInfoPage';
 import { AdminModulePage } from '../pages/AdminModulePage';
+import { SubAdminListPage } from '../pages/SubAdminListPage';
+import { SubAdminDetailPage } from '../pages/SubAdminDetailPage';
 import { ROUTE_PATHS } from './routePaths';
 
 export const router = createBrowserRouter([
   {
-    element: <MainLayout />,
-    children: [
-      { path: ROUTE_PATHS.HOME, element: <HomePage /> },
-    ],
+    path: ROUTE_PATHS.HOME,
+    element: <RootRedirect />,
   },
   {
     element: (
@@ -27,6 +26,30 @@ export const router = createBrowserRouter([
     children: [
       { path: ROUTE_PATHS.DASHBOARD, element: <DashboardPage /> },
       { path: ROUTE_PATHS.LEGACY_DASHBOARD, element: <Navigate to={ROUTE_PATHS.DASHBOARD} replace /> },
+      {
+        path: ROUTE_PATHS.SUPPORT_ADMIN,
+        element: (
+          <SuperAdminRoute>
+            <SubAdminListPage />
+          </SuperAdminRoute>
+        ),
+      },
+      {
+        path: ROUTE_PATHS.SUPPORT_ADMIN_DETAIL,
+        element: (
+          <SuperAdminRoute>
+            <SubAdminDetailPage />
+          </SuperAdminRoute>
+        ),
+      },
+      {
+        path: '/admin/support-admin/:sub_admin_id',
+        element: (
+          <SuperAdminRoute>
+            <SubAdminDetailPage />
+          </SuperAdminRoute>
+        ),
+      },
       { path: ROUTE_PATHS.TENANTS, element: <AdminModulePage /> },
       { path: ROUTE_PATHS.DEPARTMENTS, element: <AdminModulePage /> },
       { path: ROUTE_PATHS.USERS, element: <AdminModulePage /> },
@@ -43,7 +66,10 @@ export const router = createBrowserRouter([
     element: <AuthLayout />,
     children: [
       { path: ROUTE_PATHS.LOGIN, element: <LoginPage /> },
-      { path: ROUTE_PATHS.REGISTER, element: <RegisterPage /> },
     ],
+  },
+  {
+    path: '*',
+    element: <Navigate to={ROUTE_PATHS.HOME} replace />,
   },
 ]);

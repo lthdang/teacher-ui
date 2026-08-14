@@ -11,19 +11,9 @@ import {
   KeyRound,
 } from "lucide-react";
 import type { NavSection } from "../types/navigation.types";
+import { ROUTE_PATHS } from "../router/routePaths";
 
-export const ROUTE_PATHS = {
-  DASHBOARD: "/admin",
-  TENANTS: "/admin/tenants",
-  DEPARTMENTS: "/admin/departments",
-  USERS: "/admin/users",
-  ROLES: "/admin/roles",
-  USER_TENANT_ROLES: "/admin/user-tenant-roles",
-  USER_CAREER_RANKS: "/admin/career-ranks",
-  USER_ROLE_CONTEXTS: "/admin/role-contexts",
-  REPORTS: "/admin/reports",
-  SETTINGS: "/admin/settings",
-} as const;
+export { ROUTE_PATHS };
 
 export const navigationConfig: NavSection[] = [
   {
@@ -65,12 +55,12 @@ export const navigationConfig: NavSection[] = [
     title: "USERS & PERMISSIONS",
     items: [
       {
-        id: "users",
-        label: "Người dùng",
-        labelEn: "Users",
+        id: "sup-admin",
+        label: "Quản lý Sub-admin",
+        labelEn: "Manage Sub-admins",
         icon: Users,
-        path: ROUTE_PATHS.USERS,
-        permissions: ["user.view", "user.manage"],
+        path: ROUTE_PATHS.SUPPORT_ADMIN,
+        superAdminOnly: true,
       },
       {
         id: "roles",

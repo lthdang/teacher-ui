@@ -9,6 +9,7 @@ export interface NavItem {
   path?: string;
   permissions?: PermissionKey[];
   systemOnly?: boolean;
+  superAdminOnly?: boolean;
   badge?: string | number;
   children?: NavItem[];
 }
@@ -23,5 +24,6 @@ export interface CurrentUserContext {
   userId: string;
   tenantId: string | null;
   isSystemRole: boolean;
+  isSuperAdmin?: boolean;
   permissions: Record<PermissionKey, boolean>;
 }

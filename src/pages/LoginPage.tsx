@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Container,
   Paper,
@@ -11,7 +11,6 @@ import {
   InputAdornment,
   IconButton,
   CircularProgress,
-  Link,
   Stack,
 } from '@mui/material';
 import LogInIcon from '@mui/icons-material/Login';
@@ -19,7 +18,6 @@ import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useAuth } from '../hooks/useAuth';
 import { ROUTE_PATHS } from '../router/routePaths';
 
@@ -179,37 +177,6 @@ export const LoginPage: React.FC = () => {
               {isSubmitting ? 'Authenticating...' : 'Sign In'}
             </Button>
           </Stack>
-        </Box>
-
-        <Box sx={{ mt: 3.5, textAlign: 'center' }}>
-          <Typography variant="body2" color="text.secondary">
-            Don't have an account?{' '}
-            <Link
-              component={RouterLink}
-              to={ROUTE_PATHS.REGISTER}
-              sx={{ color: 'primary.light', fontWeight: 600, textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
-            >
-              Register here
-            </Link>
-          </Typography>
-        </Box>
-
-        <Box sx={{ mt: 2, textAlign: 'center' }}>
-          <Link
-            component={RouterLink}
-            to={ROUTE_PATHS.HOME}
-            sx={{
-              color: 'text.secondary',
-              fontSize: '0.85rem',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 0.5,
-              textDecoration: 'none',
-              '&:hover': { color: 'text.primary' },
-            }}
-          >
-            <ArrowBackIcon sx={{ fontSize: 16 }} /> Back to Homepage
-          </Link>
         </Box>
       </Paper>
     </Container>

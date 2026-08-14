@@ -4,8 +4,8 @@ import { useAuth } from '../hooks/useAuth';
 import { ROUTE_PATHS } from '../router/routePaths';
 import { Box, CircularProgress } from '@mui/material';
 
-export const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+export const SuperAdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated, isSuperAdmin, isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -14,8 +14,7 @@ export const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ childr
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          minHeight: '100vh',
-          backgroundColor: '#0F172A',
+          minHeight: '60vh',
         }}
       >
         <CircularProgress color="primary" />
@@ -25,6 +24,10 @@ export const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ childr
 
   if (!isAuthenticated) {
     return <Navigate to={ROUTE_PATHS.LOGIN} replace />;
+  }
+
+  if (!isSuperAdmin) {
+    return <Navigate to={ROUTE_PATHS.DASHBOARD} replace />;
   }
 
   return <>{children}</>;
