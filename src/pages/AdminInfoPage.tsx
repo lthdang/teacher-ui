@@ -29,6 +29,7 @@ import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { useAuth } from '../hooks/useAuth';
 import { updateProfileApi, changePasswordApi, ApiError } from '../services/api';
+import { avatarDefault } from '../assets/images';
 
 export const AdminInfoPage: React.FC = () => {
   const { admin, setAdminProfile, refreshProfile } = useAuth();
@@ -290,7 +291,7 @@ export const AdminInfoPage: React.FC = () => {
                 },
               }}
             >
-              Update Admin Profile
+              Update Profile
             </Button>
             <Button
               variant="outlined"
@@ -316,7 +317,7 @@ export const AdminInfoPage: React.FC = () => {
         {/* Admin Profile Overview */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 4 }}>
           <Avatar
-            src={admin?.avatar || undefined}
+            src={admin?.avatar || avatarDefault}
             sx={{
               width: 72,
               height: 72,

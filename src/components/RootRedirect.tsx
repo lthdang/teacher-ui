@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { ROUTE_PATHS } from '../router/routePaths';
 import { Box, CircularProgress } from '@mui/material';
 
-export const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const RootRedirect: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
@@ -23,9 +23,9 @@ export const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ childr
     );
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to={ROUTE_PATHS.LOGIN} replace />;
+  if (isAuthenticated) {
+    return <Navigate to={ROUTE_PATHS.DASHBOARD} replace />;
   }
 
-  return <>{children}</>;
+  return <Navigate to={ROUTE_PATHS.LOGIN} replace />;
 };

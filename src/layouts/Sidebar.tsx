@@ -25,6 +25,7 @@ import { filterNavSections, defaultUserContext } from '../utils/navigationFilter
 import { SidebarItem } from '../components/navigation/SidebarItem';
 import { NavItemGroup } from '../components/navigation/NavItemGroup';
 import { useAuth } from '../hooks/useAuth';
+import { UserRole } from '../utils/contants';
 
 export interface SidebarProps {
   userContext?: CurrentUserContext;
@@ -68,9 +69,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
     }
   };
 
+  const isSuperAdmin = admin?.type === UserRole.SUPER_ADMIN;
+
+  const adminPermissionsMap: Record<string, boolean> = {};
+  if (admin?.permissions && admin.permissions.length > 0) {
+    admin.permissions.forEach((perm) => {
+      adminPermissionsMap[perm] = true;
+    });
+  }
+
   const activeUserContext: CurrentUserContext = userContext || {
     ...defaultUserContext,
     userId: admin?.id || 'admin-01',
+    isSuperAdmin,
+    isSystemRole: isSuperAdmin,
+    permissions: Object.keys(adminPermissionsMap).length > 0
+      ? adminPermissionsMap
+      : defaultUserContext.permissions,
   };
 
   const visibleSections = filterNavSections(navigationConfig, activeUserContext);
