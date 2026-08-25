@@ -29,7 +29,6 @@ export const NavItemGroup: React.FC<NavItemGroupProps> = ({
   const location = useLocation();
   const IconComponent = item.icon;
 
-  // Kiếm tra nếu route hiện tại nằm trong menu con
   const hasActiveChild = Boolean(
     item.children?.some(
       (child) =>
@@ -46,10 +45,8 @@ export const NavItemGroup: React.FC<NavItemGroupProps> = ({
 
   const isActive = isSelfActive || hasActiveChild;
 
-  // Trạng thái mở/đóng accordion group
   const [open, setOpen] = useState<boolean>(isActive);
 
-  // Tự động mở group nếu có menu con đang active
   useEffect(() => {
     if (hasActiveChild) {
       setOpen(true);
@@ -143,7 +140,6 @@ export const NavItemGroup: React.FC<NavItemGroupProps> = ({
         )}
       </ListItemButton>
 
-      {/* Hiển thị danh sách con khi mở */}
       {!collapsed && (
         <Collapse in={open} timeout="auto" unmountOnExit>
           <List component="div" disablePadding sx={{ pl: 1 }}>

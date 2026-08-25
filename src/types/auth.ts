@@ -68,3 +68,8 @@ export interface SubAdminDetail {
 export interface UpdateSubAdminPermissionsRequest {
   permissionIds: number[];
 }
+
+export interface UpdatePermissionRequest {
+  name: string;
+}
+

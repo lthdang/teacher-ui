@@ -228,7 +228,7 @@ export const SubAdminDetailPage: React.FC = () => {
         <Button
           variant="outlined"
           startIcon={<ArrowBackIcon />}
-          onClick={() => navigate(ROUTE_PATHS.SUP_ADMIN)}
+          onClick={() => navigate(ROUTE_PATHS.SUPPORT_ADMIN)}
         >
           Back to Sub-Admins
         </Button>
@@ -266,7 +266,7 @@ export const SubAdminDetailPage: React.FC = () => {
             variant="outlined"
             startIcon={<ArrowBackIcon />}
             id="subadmin-back-btn"
-            onClick={() => navigate(ROUTE_PATHS.SUP_ADMIN)}
+            onClick={() => navigate(ROUTE_PATHS.SUPPORT_ADMIN)}
             sx={{
               borderColor: 'rgba(255, 255, 255, 0.15)',
               color: '#E0E7FF',
@@ -635,7 +635,7 @@ export const SubAdminDetailPage: React.FC = () => {
         >
           <Button
             variant="outlined"
-            onClick={() => navigate(ROUTE_PATHS.SUP_ADMIN)}
+            onClick={() => navigate(ROUTE_PATHS.SUPPORT_ADMIN)}
             sx={{ color: '#94A3B8', borderColor: 'rgba(255, 255, 255, 0.1)' }}
           >
             Cancel

@@ -9,7 +9,14 @@ import type {
   AdminProfile,
   SubAdminDetail,
   PermissionItem,
+  UpdatePermissionRequest,
 } from '../types/auth';
+import type {
+  RoleItem,
+  RoleSearchResponse,
+  CreateRoleRequest,
+  UpdateRoleRequest,
+} from '../types/role';
 
 export class ApiError extends Error {
   status: number;
@@ -140,5 +147,86 @@ export async function getAllPermissionsApi(): Promise<PermissionItem[]> {
     } catch {
       throw toApiError(err, 'Failed to fetch system permissions.');
     }
+  }
+}
+
+export async function getPermissionDetailApi(id: string | number): Promise<PermissionItem> {
+  try {
+    const response = await apiClient.get<PermissionItem>(`/permissions/${id}`);
+    return response.data;
+  } catch (err) {
+    throw toApiError(err, 'Failed to fetch permission details.');
+  }
+}
+
+export async function updatePermissionApi(
+  id: string | number,
+  data: UpdatePermissionRequest
+): Promise<PermissionItem> {
+  try {
+    const response = await apiClient.put<PermissionItem>(`/permissions/${id}`, {
+      name: data.name,
+    });
+    return response.data;
+  } catch (err) {
+    throw toApiError(err, 'Failed to update permission.');
+  }
+}
+
+export async function getRolesApi(params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+}): Promise<RoleSearchResponse> {
+  try {
+    const response = await apiClient.get<RoleSearchResponse | RoleItem[]>('/roles', { params });
+    if (Array.isArray(response.data)) {
+      return {
+        status: 200,
+        message: 'Success',
+        data: response.data,
+        page: 0,
+        limit: response.data.length,
+        totalRecords: response.data.length,
+      };
+    }
+    return response.data;
+  } catch (err) {
+    throw toApiError(err, 'Failed to fetch roles list.');
+  }
+}
+
+export async function getRoleByIdApi(id: string): Promise<RoleItem> {
+  try {
+    const response = await apiClient.get<RoleItem>(`/roles/${id}`);
+    return response.data;
+  } catch (err) {
+    throw toApiError(err, 'Failed to fetch role details.');
+  }
+}
+
+export async function createRoleApi(data: CreateRoleRequest): Promise<RoleItem> {
+  try {
+    const response = await apiClient.post<RoleItem>('/roles', data);
+    return response.data;
+  } catch (err) {
+    throw toApiError(err, 'Failed to create role.');
+  }
+}
+
+export async function updateRoleApi(id: string, data: UpdateRoleRequest): Promise<RoleItem> {
+  try {
+    const response = await apiClient.put<RoleItem>(`/roles/${id}`, data);
+    return response.data;
+  } catch (err) {
+    throw toApiError(err, 'Failed to update role.');
+  }
+}
+
+export async function deleteRoleApi(id: string): Promise<void> {
+  try {
+    await apiClient.delete(`/roles/${id}`);
+  } catch (err) {
+    throw toApiError(err, 'Failed to delete role.');
   }
 }
