@@ -10,6 +10,10 @@ import { AdminInfoPage } from '../pages/AdminInfoPage';
 import { AdminModulePage } from '../pages/AdminModulePage';
 import { SubAdminListPage } from '../pages/SubAdminListPage';
 import { SubAdminDetailPage } from '../pages/SubAdminDetailPage';
+import { PermissionListPage } from '../pages/PermissionListPage';
+import { PermissionDetailPage } from '../pages/PermissionDetailPage';
+import { RoleListPage } from '../pages/RoleListPage';
+import { RoleDetailPage } from '../pages/RoleDetailPage';
 import { ROUTE_PATHS } from './routePaths';
 
 export const router = createBrowserRouter([
@@ -43,17 +47,40 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: '/admin/support-admin/:sub_admin_id',
+        path: ROUTE_PATHS.PERMISSIONS,
         element: (
           <SuperAdminRoute>
-            <SubAdminDetailPage />
+            <PermissionListPage />
+          </SuperAdminRoute>
+        ),
+      },
+      {
+        path: ROUTE_PATHS.PERMISSION_DETAIL,
+        element: (
+          <SuperAdminRoute>
+            <PermissionDetailPage />
+          </SuperAdminRoute>
+        ),
+      },
+      {
+        path: ROUTE_PATHS.ROLES,
+        element: (
+          <SuperAdminRoute>
+            <RoleListPage />
+          </SuperAdminRoute>
+        ),
+      },
+      {
+        path: ROUTE_PATHS.ROLE_DETAIL,
+        element: (
+          <SuperAdminRoute>
+            <RoleDetailPage />
           </SuperAdminRoute>
         ),
       },
       { path: ROUTE_PATHS.TENANTS, element: <AdminModulePage /> },
       { path: ROUTE_PATHS.DEPARTMENTS, element: <AdminModulePage /> },
       { path: ROUTE_PATHS.USERS, element: <AdminModulePage /> },
-      { path: ROUTE_PATHS.ROLES, element: <AdminModulePage /> },
       { path: ROUTE_PATHS.USER_TENANT_ROLES, element: <AdminModulePage /> },
       { path: ROUTE_PATHS.USER_CAREER_RANKS, element: <AdminModulePage /> },
       { path: ROUTE_PATHS.USER_ROLE_CONTEXTS, element: <AdminModulePage /> },

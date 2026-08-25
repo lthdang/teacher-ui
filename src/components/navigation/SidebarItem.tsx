@@ -26,7 +26,6 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({
   const location = useLocation();
   const IconComponent = item.icon;
 
-  // Kiếm tra route path active
   const isActive = item.path
     ? location.pathname === item.path ||
       (item.path !== '/admin' && location.pathname.startsWith(`${item.path}/`))
