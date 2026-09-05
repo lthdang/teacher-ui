@@ -14,6 +14,8 @@ import { PermissionListPage } from '../pages/PermissionListPage';
 import { PermissionDetailPage } from '../pages/PermissionDetailPage';
 import { RoleListPage } from '../pages/RoleListPage';
 import { RoleDetailPage } from '../pages/RoleDetailPage';
+import { TenantListPage } from '../pages/TenantListPage';
+import { TenantDetailPage } from '../pages/TenantDetailPage';
 import { ROUTE_PATHS } from './routePaths';
 
 export const router = createBrowserRouter([
@@ -78,7 +80,22 @@ export const router = createBrowserRouter([
           </SuperAdminRoute>
         ),
       },
-      { path: ROUTE_PATHS.TENANTS, element: <AdminModulePage /> },
+      {
+        path: ROUTE_PATHS.TENANTS,
+        element: (
+          <SuperAdminRoute>
+            <TenantListPage />
+          </SuperAdminRoute>
+        ),
+      },
+      {
+        path: ROUTE_PATHS.TENANT_DETAIL,
+        element: (
+          <SuperAdminRoute>
+            <TenantDetailPage />
+          </SuperAdminRoute>
+        ),
+      },
       { path: ROUTE_PATHS.DEPARTMENTS, element: <AdminModulePage /> },
       { path: ROUTE_PATHS.USERS, element: <AdminModulePage /> },
       { path: ROUTE_PATHS.USER_TENANT_ROLES, element: <AdminModulePage /> },

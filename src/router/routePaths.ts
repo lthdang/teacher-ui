@@ -10,6 +10,7 @@ export const ROUTE_PATHS = {
   PERMISSIONS: '/admin/permissions',
   PERMISSION_DETAIL: '/admin/permissions/:id',
   TENANTS: '/admin/tenants',
+  TENANT_DETAIL: '/admin/tenants/:id',
   DEPARTMENTS: '/admin/departments',
   USERS: '/admin/users',
   ROLES: '/admin/roles',

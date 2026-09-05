@@ -17,6 +17,12 @@ import type {
   CreateRoleRequest,
   UpdateRoleRequest,
 } from '../types/role';
+import type {
+  TenantSimple,
+  TenantDetail,
+  CreateTenantRequest,
+  UpdateTenantRequest,
+} from '../types/tenant';
 
 export class ApiError extends Error {
   status: number;
@@ -228,5 +234,66 @@ export async function deleteRoleApi(id: string): Promise<void> {
     await apiClient.delete(`/roles/${id}`);
   } catch (err) {
     throw toApiError(err, 'Failed to delete role.');
+  }
+}
+
+export async function getTenantsApi(search?: string): Promise<TenantSimple[]> {
+  try {
+    const response = await apiClient.get<TenantSimple[]>('/tenants', {
+      params: search ? { search } : undefined,
+    });
+    if (Array.isArray(response.data)) {
+      return response.data;
+    }
+    if (response.data && Array.isArray((response.data as any).data)) {
+      return (response.data as any).data;
+    }
+    return [];
+  } catch (err) {
+    throw toApiError(err, 'Failed to fetch tenants list.');
+  }
+}
+
+export async function getTenantByIdApi(id: string): Promise<TenantDetail> {
+  try {
+    const response = await apiClient.get<TenantDetail>(`/tenants/${id}`);
+    if (response.data && (response.data as any).data && !(response.data as any).id) {
+      return (response.data as any).data;
+    }
+    return response.data;
+  } catch (err) {
+    throw toApiError(err, 'Failed to fetch tenant details.');
+  }
+}
+
+export async function createTenantApi(data: CreateTenantRequest): Promise<TenantDetail> {
+  try {
+    const response = await apiClient.post<TenantDetail>('/tenants', data);
+    if (response.data && (response.data as any).data && !(response.data as any).id) {
+      return (response.data as any).data;
+    }
+    return response.data;
+  } catch (err) {
+    throw toApiError(err, 'Failed to create tenant.');
+  }
+}
+
+export async function updateTenantApi(id: string, data: UpdateTenantRequest): Promise<TenantDetail> {
+  try {
+    const response = await apiClient.put<TenantDetail>(`/tenants/${id}`, data);
+    if (response.data && (response.data as any).data && !(response.data as any).id) {
+      return (response.data as any).data;
+    }
+    return response.data;
+  } catch (err) {
+    throw toApiError(err, 'Failed to update tenant.');
+  }
+}
+
+export async function deleteTenantApi(id: string): Promise<void> {
+  try {
+    await apiClient.delete(`/tenants/${id}`);
+  } catch (err) {
+    throw toApiError(err, 'Failed to delete tenant.');
   }
 }
